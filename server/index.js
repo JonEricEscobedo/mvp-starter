@@ -1,27 +1,56 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-// UNCOMMENT THE DATABASE YOU'D LIKE TO USE
-// var items = require('../database-mysql');
-// var items = require('../database-mongo');
+var todos = require('../database-mongo');
 
 var app = express();
 
 // UNCOMMENT FOR REACT
+app.use(bodyParser.json())
 app.use(express.static(__dirname + '/../react-client/dist'));
 
-// UNCOMMENT FOR ANGULAR
-// app.use(express.static(__dirname + '/../angular-client'));
-// app.use(express.static(__dirname + '/../node_modules'));
 
-app.get('/items', function (req, res) {
-  items.selectAll(function(err, data) {
+app.get('/items', function(req, res) {
+  todos.selectAll(function(err, data) {
     if(err) {
       res.sendStatus(500);
     } else {
       res.json(data);
     }
   });
-});
+}); // End of GET method
+
+app.post('/items/import', function(req, res) {
+  var newTodo = new todos.Todo({
+    date: 1493591494,
+    description: req.body.term 
+  })
+
+  newTodo.save(function (err, res) {
+    if (err) {
+      console.log('Error writing to MongoDB');
+      throw err;
+    } else {
+      console.log('Todo saved in MongoDB');
+    }
+  })
+
+  res.end();
+}); // End of POST method
+
+app.delete('/items/delete', function(req, res) {
+  console.log('inside delete', req.body.term);
+  var todoId = req.body.term;
+
+  todos.Todo.remove({_id: todoId}, function(err, res) {
+    if (err) {
+      console.log('something broke with delete...');
+      throw err;
+    } else {
+      console.log('Todo deleted');
+    }
+  })
+  res.end();
+}); // End of DELETE method
 
 app.listen(3000, function() {
   console.log('listening on port 3000!');

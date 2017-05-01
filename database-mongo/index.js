@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost/todolist');
 
 var db = mongoose.connection;
 
@@ -11,21 +11,23 @@ db.once('open', function() {
   console.log('mongoose connected successfully');
 });
 
-var itemSchema = mongoose.Schema({
-  quantity: Number,
+var todoSchema = mongoose.Schema({
+  date: Number,
   description: String
 });
 
-var Item = mongoose.model('Item', itemSchema);
+var Todo = mongoose.model('Todo', todoSchema);
 
 var selectAll = function(callback) {
-  Item.find({}, function(err, items) {
+  Todo.find({}, function(err, todos) {
     if(err) {
       callback(err, null);
     } else {
-      callback(null, items);
+      callback(null, todos);
     }
   });
 };
 
 module.exports.selectAll = selectAll;
+module.exports.Todo = Todo;
+// module.exports = Todo;
